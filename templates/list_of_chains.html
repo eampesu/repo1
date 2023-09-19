@@ -1,0 +1,9 @@
+<a href="/new_chain/{{chain.C.area_id}}">Lisää uusi ketju</a>| 
+<a href="/logout">Kirjaudu ulos</a>
+{% for chain in chains%}
+Aloittanut: {{chain.U.username}} <br>
+Luotu: {{chain.C.created_at}} <br>
+Otsikko: {{chain.C.topic}} <br>
+<a href="/chain/{{chain.C.id}"}> Näytä ketju</a>
+{% endfor %}
+<a href="/new_chain/{{chain.C.area_id}}">Lisää uusi ketju</a>

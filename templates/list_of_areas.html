@@ -1,0 +1,10 @@
+<hr>
+{% for area in areas %}
+Nimi: {{area.A.topic}}<br>
+Ketjujen lukumäärä: {{area.count_chains}}<br>
+Viestien lukumäärä: {{area.count_msgs}}<br>
+Viimeisimmän viestin ajankohta: {{area.min}}<br>
+<a href="/chains/{{area.C.id}}">Näytä ketjut</a>
+<hr>
+<p> Olet kirjautunut sisään. <a href="/logout"> Kirjaudu ulos</a>
+</p>

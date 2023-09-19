@@ -1,0 +1,12 @@
+{{first.C.topic}} <br>
+Viesti: {{first.C.content}}<br>
+Lähettäjä: {{first.U.username}} <br>
+Aika: {{first.C.sent_at}}
+<hr>
+{{% for answer in answers %}}
+Viesti: {{ answer.A.content}}
+Lähettäjä: {{answer.U.username}}
+Aika: {{answer.A.sent_at}}
+<hr>
+{% endfor %}
+<a href="/answer/{{first.C.id}}">Vastaa ketjuun</a>
