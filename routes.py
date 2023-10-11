@@ -41,6 +41,7 @@ def create():
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
+    #print("admin:", request.form["yes"], request.form["no"])
     if request.method == "GET":
         return render_template("create.html")
     if request.method == "POST":
