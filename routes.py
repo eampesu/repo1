@@ -3,7 +3,7 @@ from flask import render_template, request, redirect, session
 import areas
 import messages
 import users
-import chainsss
+import chainz
 import secretUsers
 
 @app.route("/")
@@ -16,9 +16,7 @@ def list():
     username=users.get_username(user_id)
     admin=users.is_admin(user_id)
     list=areas.get_list()
-    print("normilista", list)
     slist=areas.get_secret_list()
-    print("secret areas:", slist)
     return render_template("list_of_areas.html", areas=list, admin=admin, secret_areas=slist, username=username)
 
 @app.route("/login")
@@ -59,8 +57,7 @@ def register():
 
 @app.route("/chains/<int:id>")
 def chains(id):
-    chains_list=chainsss.get_list(id)
-    print("saatiin ketjulista:", chains_list)
+    chains_list=chainz.get_list(id)
     if bool(chains_list)==False:
         return render_template("zero_chains.html", area_id=id)
     return render_template("list_of_chains.html", area_id=id, chains=chains_list)
@@ -73,16 +70,15 @@ def new_chain(id):
 def chain(id):
     user_id=users.user_id()
     username=users.get_username(user_id)
-    chain=chainsss.get_chain(id)
-    chain_list=chainsss.get_messages(id)
-    print("ollaan chain ja tässä messages:", chain_list)
+    chain=chainz.get_chain(id)
+    chain_list=chainz.get_messages(id)
     return render_template("chain.html", username=username, first=chain, messages=chain_list)
 
 @app.route("/remove_chain/<int:id>")
 def remove_chain(id):
-    area_id=chainsss.get_area(id)
+    area_id=chainz.get_area(id)
     messages.remove_chain(id)
-    chainsss.remove(id)
+    chainz.remove(id)
     return redirect("/chains/"+str(area_id))
 
 @app.route("/answer/<int:id>")
@@ -98,7 +94,6 @@ def add_answer():
 
 @app.route("/edit_answer", methods=["POST"])
 def edit_answer():
-    print("ollaan edit_answer, message_id:", request.form["message_id"])
     return render_template("edit_answer.html", chain_id=request.form["chain_id"], message_id=request.form["message_id"])
 
 @app.route("/finish_edit", methods=["POST"])
@@ -117,7 +112,7 @@ def remove_answer():
 def add_new_chain():
     user_id=users.user_id()
     area_id=request.form["area_id"]
-    chainsss.add(user_id, request.form["topic"], request.form["content"], request.form["area_id"])
+    chainz.add(user_id, request.form["topic"], request.form["content"], request.form["area_id"])
     return redirect("/chains/"+str(area_id))
 
 @app.route("/edit_topic/<int:id>")
@@ -126,9 +121,8 @@ def edit_topic(id):
 
 @app.route("/change_topic", methods=["POST"])
 def change_topic():
-    print("ollaan change_topic()")
     chain_id=request.form["chain_id"]
-    chainsss.change_topic(request.form["chain_id"], request.form["topic"])
+    chainz.change_topic(request.form["chain_id"], request.form["topic"])
     return redirect("/chain/" +str(chain_id))
 
 @app.route("/edit_message/<int:id>")
@@ -137,12 +131,12 @@ def edit_message(id):
 @app.route("/edit", methods=["POST"])
 def edit():
     chain_id=request.form["chain_id"]
-    chainsss.edit_message(chain_id, request.form["content"])
+    chainz.edit_message(chain_id, request.form["content"])
     return redirect("/chain/"+str(chain_id))
 
 @app.route("/remove_message/<int:id>")
 def remove_message(id):
-    chainsss.remove(id)
+    chainz.remove(id)
     return redirect("/chain/" +str(id))
         
 @app.route("/logout")
@@ -175,8 +169,6 @@ def add_new_area():
 def new_secret_area():
     secret_users=request.form.getlist("user_id")
     topic=request.form["topic"]
-    print("secret users:", secret_users)
-    print("topic:", topic)
     areas.add(topic, True)
     area_id=areas.get_area_id(topic)
     secretUsers.add(area_id, secret_users)
@@ -185,7 +177,7 @@ def new_secret_area():
 def result():
     query=request.args["query"]
     finds1=messages.find_normal(query)
-    finds2=chainsss.find_normal(query)
+    finds2=chainz.find_normal(query)
     if bool(finds1)==False and bool(finds2)==False:
         return render_template("no_match.html")
     return render_template("result.html", messages=finds1, chains=finds2)
@@ -194,9 +186,8 @@ def result():
 def secret_result():
     query=request.args["query"]
     finds1=messages.find_secret(query)
-    finds2=chainsss.find_secret(query)
+    finds2=chainz.find_secret(query)
     uid=users.user_id()
-    print("messages:", finds1, "chains:", finds2, "userid:", uid)
     if bool(finds1)==False and bool(finds2)==False:
         return render_template("no_match.html")
     return render_template("secret_result.html", messages=finds1, chains=finds2, uid=uid)

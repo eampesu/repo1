@@ -1,10 +1,9 @@
 from db import db
 from sqlalchemy.sql import text
 import messages
-import chainsss
+import chainz
 
 def get_list():
-    print("Ollaan getlistissä")
     sql=db.text('SELECT A.id, A.topic, COUNT(DISTINCT C.id) AS count_chains, COUNT(M.id) AS count_msgs, max(M.created_at) AS max FROM areas A LEFT JOIN chains C ON A.id= C.area_id LEFT JOIN messages M ON M.chain_id=C.id WHERE secret=False GROUP BY A.id')
     result=db.session.execute(sql)
     return result.fetchall()
@@ -21,7 +20,7 @@ def delete(area_id):
     print(id_list)
     for i in id_list:
         messages.remove_chain(i.id)
-        chainsss.remove(i.id)
+        chainz.remove(i.id)
     sql=text('DELETE FROM areas WHERE id=:id')
     db.session.execute(sql, {"id":area_id})
     db.session.commit()

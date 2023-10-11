@@ -2,7 +2,6 @@ from db import db
 from sqlalchemy import text
 
 def get_list(areaid):
-    print("ollaan chains.get_list", areaid)
     sql=text('SELECT U.username, C.topic, C.content, C.created_at, C.id FROM users U LEFT JOIN chains C ON U.id=C.user_id WHERE C.area_id=:areaid ORDER BY C.created_at DESC')
     result=db.session.execute(sql, {"areaid":areaid})
     return result.fetchall()
