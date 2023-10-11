@@ -1,9 +1,21 @@
-<a href="/new_chain/{{chain.C.area_id}}">Lisää uusi ketju</a>| 
+<hr>
 <a href="/logout">Kirjaudu ulos</a>
+<hr>
+
 {% for chain in chains%}
-Aloittanut: {{chain.U.username}} <br>
-Luotu: {{chain.C.created_at}} <br>
-Otsikko: {{chain.C.topic}} <br>
-<a href="/chain/{{chain.C.id}"}> Näytä ketju</a>
+{% if session.username==chain.username %}
+Aloittanut: {{chain.username}} <br>
+Luotu: {{chain.created_at}} <br>
+Otsikko: {{chain.topic}} <br>
+<a href="/chain/{{chain.id}}"> Näytä ketju</a> | <a href="/remove_chain/{{chain.id}}">Poista ketju</a> <br>
+<hr>
+{% else %}
+Aloittanut: {{chain.username}} <br>
+Luotu: {{chain.created_at}} <br>
+Otsikko: {{chain.topic}} <br>
+<a href="/chain/{{chain.id}}"> Näytä ketju</a> <br>
+<hr>
+{% endif %}
 {% endfor %}
-<a href="/new_chain/{{chain.C.area_id}}">Lisää uusi ketju</a>
+
+<a href="/new_chain/{{area_id}}">Lisää uusi ketju</a> | <a href="/list">Palaa etusivulle</a>

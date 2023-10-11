@@ -1,0 +1,11 @@
+{% for chain in chains%}
+{{chain.content}}<br>
+<a href="/chain/{{chain.id}}">Näytä ketju</a><br>
+<hr>
+{%endfor%}
+ {%for message in messages%}
+ {{message.content}}<br>
+ <a href="/chain/{{message.chain_id}}">Näytä ketju</a> <br>
+ <hr>
+ {%endfor%}
+ <a href="/list">Palaa etusivulle</a>

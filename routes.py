@@ -1,8 +1,10 @@
 from app import app
-from flask import render_template, request
+from flask import render_template, request, redirect, session
 import areas
-#import messages
+import messages
 import users
+import chainsss
+import secretUsers
 
 @app.route("/")
 def index():
@@ -10,12 +12,14 @@ def index():
 
 @app.route("/list")
 def list():
+    user_id=users.user_id()
+    username=users.get_username(user_id)
+    admin=users.is_admin(user_id)
     list=areas.get_list()
-    return render_template("list_of_areas.html", areas=list)
-
-#@app.route("/message", id)
-#def message():
-#    return render_template("message.html", id=id)
+    print("normilista", list)
+    slist=areas.get_secret_list()
+    print("secret areas:", slist)
+    return render_template("list_of_areas.html", areas=list, admin=admin, secret_areas=slist, username=username)
 
 @app.route("/login")
 def login():
@@ -45,37 +49,43 @@ def register():
         username = request.form["username"]
         password1 = request.form["password"]
         password2 = request.form["password2"]
-        if password != password2:
+        if password1 != password2:
             return render_template("error.html", message="Salasanat eroavat")
-    if users.register(username, password):
+    if users.register(username, password1):
         return redirect("/list")
     else:
         return render_template("error.html", message="Rekisteröinti ei onnistunut")
 
-@app.route("/answers(<int:id>)")
-def answers(id):
-    list=answers.get_list(id)
-    return render_template("list_answers.html", list=list)
 
-@app.route("/chains(<int:id>)")
+@app.route("/chains/<int:id>")
 def chains(id):
-    chains_list=chains.get_list(id)
-    if bool(chains_list):
+    chains_list=chainsss.get_list(id)
+    print("saatiin ketjulista:", chains_list)
+    if bool(chains_list)==False:
         return render_template("zero_chains.html", area_id=id)
-    return render_template("list_of_chains.html", chains=chains_list)
+    return render_template("list_of_chains.html", area_id=id, chains=chains_list)
 
-@app.route("/new_chain")
-def new_chain():
-    id=request.form["area_id"]
+@app.route("/new_chain/<int:id>")
+def new_chain(id):
     return render_template("new_chain.html", area_id=id)
 
-@app.route("/chain(<int:id>)")
+@app.route("/chain/<int:id>")
 def chain(id):
-    first=chains.get_topic(id)
-    chain_list=chains.get_messages(id)
-    return render_template("chain.html",first=first, messages=chain_list)
+    user_id=users.user_id()
+    username=users.get_username(user_id)
+    chain=chainsss.get_chain(id)
+    chain_list=chainsss.get_messages(id)
+    print("ollaan chain ja tässä messages:", chain_list)
+    return render_template("chain.html", username=username, first=chain, messages=chain_list)
 
-@app.route("/answer(<int>:id)")
+@app.route("/remove_chain/<int:id>")
+def remove_chain(id):
+    area_id=chainsss.get_area(id)
+    messages.remove_chain(id)
+    chainsss.remove(id)
+    return redirect("/chains/"+str(area_id))
+
+@app.route("/answer/<int:id>")
 def answer(id):
     return render_template("answer.html", chain_id=id)
 
@@ -83,6 +93,112 @@ def answer(id):
 def add_answer():
     user_id=users.user_id()
     chain_id=request.form["chain_id"]
-    answers.add(request.form["content"],request.form["chain_id"], user_id)
-    return redirect("/answers(chain_id)")
+    messages.add(request.form["content"],request.form["chain_id"], user_id)
+    return redirect("/chain/"+str(chain_id))
+
+@app.route("/edit_answer", methods=["POST"])
+def edit_answer():
+    print("ollaan edit_answer, message_id:", request.form["message_id"])
+    return render_template("edit_answer.html", chain_id=request.form["chain_id"], message_id=request.form["message_id"])
+
+@app.route("/finish_edit", methods=["POST"])
+def finish_edit():
+    chain_id=request.form["chain_id"]
+    messages.edit(request.form["message_id"], request.form["content"])
+    return redirect("/chain/" +str(chain_id))
+
+@app.route("/remove_answer", methods=["POST"])
+def remove_answer():
+    messages.remove(request.form["message_id"])
+    chain_id=request.form["chain_id"]
+    return redirect("/chain/"+str(chain_id))
+
+@app.route("/add_new_chain", methods=["POST"])
+def add_new_chain():
+    user_id=users.user_id()
+    area_id=request.form["area_id"]
+    chainsss.add(user_id, request.form["topic"], request.form["content"], request.form["area_id"])
+    return redirect("/chains/"+str(area_id))
+
+@app.route("/edit_topic/<int:id>")
+def edit_topic(id):
+    return render_template("edit_topic.html", chain_id=id)
+
+@app.route("/change_topic", methods=["POST"])
+def change_topic():
+    print("ollaan change_topic()")
+    chain_id=request.form["chain_id"]
+    chainsss.change_topic(request.form["chain_id"], request.form["topic"])
+    return redirect("/chain/" +str(chain_id))
+
+@app.route("/edit_message/<int:id>")
+def edit_message(id):
+    return render_template("edit_message.html", chain_id=id)
+@app.route("/edit", methods=["POST"])
+def edit():
+    chain_id=request.form["chain_id"]
+    chainsss.edit_message(chain_id, request.form["content"])
+    return redirect("/chain/"+str(chain_id))
+
+@app.route("/remove_message/<int:id>")
+def remove_message(id):
+    chainsss.remove(id)
+    return redirect("/chain/" +str(id))
+        
+@app.route("/logout")
+def logout():
+    users.logout()
+    return redirect("/")
+
+@app.route("/delete_area/<int:id>")
+def delete_area(id):
+    areas.delete(id)
+    return redirect("/list")
+
+@app.route("/new_area")
+def new_area():
+    return render_template("new_area.html")
+
+@app.route("/add_new_area", methods=["POST"])
+def add_new_area():
+    if request.form["yesno"]=="Ei":
+        areas.add(request.form["topic"], False)
+        return redirect("/list")
+    elif request.form["yesno"]=="Kyllä":
+        userlist=users.get_users()
+        topic=request.form["topic"]
+        return render_template("choose_users.html", topic=topic, users=userlist)
+    else:
+        return redirect("/new_area")
+
+@app.route("/new_secret_area", methods=["POST"])
+def new_secret_area():
+    secret_users=request.form.getlist("user_id")
+    topic=request.form["topic"]
+    print("secret users:", secret_users)
+    print("topic:", topic)
+    areas.add(topic, True)
+    area_id=areas.get_area_id(topic)
+    secretUsers.add(area_id, secret_users)
+    return redirect("/list")
+@app.route("/result")
+def result():
+    query=request.args["query"]
+    finds1=messages.find_normal(query)
+    finds2=chainsss.find_normal(query)
+    if bool(finds1)==False and bool(finds2)==False:
+        return render_template("no_match.html")
+    return render_template("result.html", messages=finds1, chains=finds2)
+
+@app.route("/secret_result", methods=["GET"])
+def secret_result():
+    query=request.args["query"]
+    finds1=messages.find_secret(query)
+    finds2=chainsss.find_secret(query)
+    uid=users.user_id()
+    print("messages:", finds1, "chains:", finds2, "userid:", uid)
+    if bool(finds1)==False and bool(finds2)==False:
+        return render_template("no_match.html")
+    return render_template("secret_result.html", messages=finds1, chains=finds2, uid=uid)
+
 

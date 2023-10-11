@@ -1,10 +1,67 @@
+Tervetuloa keskustelemaan. Alla näet listauksen kaikista keskustelualueista. Noudatamme turvallisen tilan periaatetta. Ethän loukkaa tai solvaa ketään. Epäasialliset viestit tullaan poistamaan ja häiriköiden tilit poistetaan tarvittaessa.
+<hr>
+Hae viestejä:<br>
+<form action="/result" method="GET">
+	Hakusana: <input type="text" name="query">
+	<br>
+	<input type="submit" value="Lähetä">
+</form>
+{%if admin==True%}
+<a href="/new_area">Lisää uusi alue</a><br>
 <hr>
 {% for area in areas %}
-Nimi: {{area.A.topic}}<br>
+Nimi: {{area.topic}}<br>
 Ketjujen lukumäärä: {{area.count_chains}}<br>
 Viestien lukumäärä: {{area.count_msgs}}<br>
-Viimeisimmän viestin ajankohta: {{area.min}}<br>
-<a href="/chains/{{area.C.id}}">Näytä ketjut</a>
+Viimeisimmän viestin ajankohta: {{area.max}}<br>
+<a href="/chains/{{area.id}}">Näytä ketjut</a> |
+<a href="/delete_area/{{area.id}}">Poista alue</a><br>
 <hr>
-<p> Olet kirjautunut sisään. <a href="/logout"> Kirjaudu ulos</a>
+{% endfor %}
+
+Salaiset alueet:<br> 
+<hr>
+Hae viesteistä: <br>
+<form action="/secret_result" method="GET">
+	 Hakusana: <input type="text" name="query">
+        <br>
+        <input type="submit" value="Lähetä">
+</form>
+<hr>
+{% for s in secret_areas %}
+Nimi: {{s.topic}}<br>
+<a href="/chains/{{s.id}}">Näytä ketjut</a> |
+<a href="/delete_area/{{s.id}}">Poista alue</a><br>
+<hr>
+{% endfor %}
+
+{% else %}
+{% for area in areas %}
+Nimi: {{area.topic}}<br>
+Ketjujen lukumäärä: {{area.count_chains}}<br>
+Viestien lukumäärä: {{area.count_msgs}}<br>
+Viimeisimmän viestin ajankohta: {{area.max}}<br>
+<a href="/chains/{{area.id}}">Näytä ketjut</a> <br>
+<hr>
+{% endfor %}
+
+Salaiset alueet:<br>
+<hr>
+<form action="/secret_result" method="GET">
+         Hakusana: <input type="text" name="query">
+        <br>
+        <input type="submit" value="Lähetä">
+</form>
+<hr>
+{% for s in secret_areas %}
+{% if session.id==s.user_id %}
+Nimi: {{s.topic}}<br>
+<a href="/chains/{{s.id}}">Näytä ketjut</a> <br>
+<hr>
+{% endif %}
+{% endfor %}
+{% endif %}
+
+
+<p> Olet kirjautunut sisään. <a href="/logout">Kirjaudu ulos</a>
 </p>

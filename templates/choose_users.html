@@ -1,0 +1,8 @@
+Valitse käyttäjät joilla on pääsy salaiselle alueelle: <br>
+<form action="/new_secret_area" method="POST">
+	{%for user in users%}
+	<input type="checkbox" name="user_id" value="{{user.id}}"> {{user.username}} <br>
+	{%endfor%}
+	<input type="submit" value="Lähetä">
+	<input type="hidden" name="topic" value="{{topic}}">
+</form>
