@@ -47,6 +47,7 @@ def register():
         username = request.form["username"]
         password1 = request.form["password"]
         password2 = request.form["password2"]
+        print("haluatko olla admin?", request.form["yes"], request.form["no"])
         if password1 != password2:
             return render_template("error.html", message="Salasanat eroavat")    
         if users.register(username, password1):
