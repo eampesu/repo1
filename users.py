@@ -20,9 +20,12 @@ def login(username, password):
 
 def register(username, password):
     hash_value = generate_password_hash(password)
-    sql=f'INSERT INTO users (username, password, admin) VALUES (\'{username}\', \'{hash_value}\', FALSE);'
-    db.session.execute(text(sql))
-    db.session.commit()
+    try:
+        sql=f'INSERT INTO users (username, password, admin) VALUES (\'{username}\', \'{hash_value}\', FALSE);'
+        db.session.execute(text(sql))
+        db.session.commit()
+    except:
+        return False
     return login(username, password)
 
 def user_id():
@@ -46,3 +49,9 @@ def get_username(user_id):
     sql=text('SELECT username FROM users WHERE id=:id')
     result=db.session.execute(sql, {"id":user_id})
     return result.fetchone()[0]
+
+def is_user(username):
+    sql=text('SELECT username from users WHERE username=:username')
+    result=db.session.execute(sql, {"username":username})
+    print("haettu username ja saatu:", result.fetchone())
+    return result.fetchone()

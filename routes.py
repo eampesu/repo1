@@ -41,7 +41,6 @@ def create():
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
-    #print("admin:", request.form["yes"], request.form["no"])
     if request.method == "GET":
         return render_template("create.html")
     if request.method == "POST":
@@ -49,11 +48,11 @@ def register():
         password1 = request.form["password"]
         password2 = request.form["password2"]
         if password1 != password2:
-            return render_template("error.html", message="Salasanat eroavat")
-    if users.register(username, password1):
-        return redirect("/list")
-    else:
-        return render_template("error.html", message="Rekisteröinti ei onnistunut")
+            return render_template("error.html", message="Salasanat eroavat")    
+        if users.register(username, password1):
+            return redirect("/list")
+        else:
+            return render_template("error.html", message="Rekisteröinti ei onnistunut")
 
 
 @app.route("/chains/<int:id>")
