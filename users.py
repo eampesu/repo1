@@ -18,14 +18,26 @@ def login(username, password):
         else:
             return False
 
-def register(username, password):
+def register(username, password, answer):
     hash_value = generate_password_hash(password)
-    try:
-        sql=text('INSERT INTO users (username, password, admin) VALUES (:username, :password, :admin)')
-        db.session.execute(sql, {"username":username, "password":hash_value, "admin":False})
-        db.session.commit()
-    except:
+    if answer=="Kyllä":
+
+        try:
+            sql=text('INSERT INTO users (username, password, admin) VALUES (:username, :password, :admin)')
+            db.session.execute(sql, {"username":username, "password":hash_value, "admin":True})
+            db.session.commit()
+        except:
+            return False
+    elif answer=="Ei":
+        try:
+            sql=text('INSERT INTO users (username, password, admin) VALUES (:username, :password, :admin)')
+            db.session.execute(sql, {"username":username, "password":hash_value, "admin":False})
+            db.session.commit()
+        except:
+            return False
+    else:
         return False
+
     return login(username, password)
 
 def user_id():
