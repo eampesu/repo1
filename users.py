@@ -21,8 +21,8 @@ def login(username, password):
 def register(username, password):
     hash_value = generate_password_hash(password)
     try:
-        sql=f'INSERT INTO users (username, password, admin) VALUES (\'{username}\', \'{hash_value}\', FALSE);'
-        db.session.execute(text(sql))
+        sql=text('INSERT INTO users (username, password, admin) VALUES (:username, :password, :admin)')
+        db.session.execute(sql, {"username":username, "password":hash_value, "admin":False})
         db.session.commit()
     except:
         return False
