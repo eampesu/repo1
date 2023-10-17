@@ -28,7 +28,7 @@ Hae viesteistä: <br>
         <input type="submit" value="Lähetä">
 </form>
 <hr>
-{% for s in secret_areas %}
+{% for s in stopics %}
 Nimi: {{s.topic}}<br>
 <a href="/chains/{{s.id}}">Näytä ketjut</a> |
 <a href="/delete_area/{{s.id}}">Poista alue</a><br>
@@ -54,7 +54,7 @@ Salaiset alueet:<br>
 </form>
 <hr>
 {% for s in secret_areas %}
-{% if session.id==s.user_id %}
+{% if userid==s.user_id %}
 Nimi: {{s.topic}}<br>
 <a href="/chains/{{s.id}}">Näytä ketjut</a> <br>
 <hr>

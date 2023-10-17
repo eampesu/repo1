@@ -17,7 +17,8 @@ def list():
     admin=users.is_admin(user_id)
     list=areas.get_list()
     slist=areas.get_secret_list()
-    return render_template("list_of_areas.html", areas=list, admin=admin, secret_areas=slist, username=username)
+    secret_topics=areas.get_secret_topics()
+    return render_template("list_of_areas.html", areas=list, admin=admin, secret_areas=slist, username=username, stopics=secret_topics, userid=user_id)
 
 @app.route("/login")
 def login():
@@ -148,6 +149,8 @@ def logout():
 
 @app.route("/delete_area/<int:id>")
 def delete_area(id):
+    if areas.is_secret(id):
+        secretUsers.delete(id)
     areas.delete(id)
     return redirect("/list")
 

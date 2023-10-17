@@ -13,6 +13,11 @@ def get_secret_list():
     result=db.session.execute(sql)
     return result.fetchall()
 
+def get_secret_topics():
+    sql=text('SELECT id, topic FROM areas WHERE secret=True')
+    result=db.session.execute(sql)
+    return result.fetchall()
+
 def delete(area_id):
     sql=text('SELECT id FROM CHAINS WHERE area_id=:area_id')
     result=db.session.execute(sql, {"area_id":area_id})
@@ -35,4 +40,9 @@ def add(new_topic, truth_value):
 def get_area_id(topic):
     sql=text('SELECT id FROM areas WHERE topic=:topic')
     result=db.session.execute(sql, {"topic":topic})
+    return result.fetchone()[0]
+
+def is_secret(area_id):
+    sql=text('SELECT secret FROM areas WHERE id=:area_id')
+    result=db.session.execute(sql, {"area_id":area_id})
     return result.fetchone()[0]

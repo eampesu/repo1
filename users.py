@@ -4,7 +4,6 @@ from flask import session
 from sqlalchemy.sql import text
 
 def login(username, password):
-    print("Päästiin users.loginiin!")
     sql=db.text("SELECT id, password FROM users WHERE username=:username")
     result=db.session.execute(sql, {"username" :username})
     user=result.fetchone()
@@ -65,5 +64,4 @@ def get_username(user_id):
 def is_user(username):
     sql=text('SELECT username from users WHERE username=:username')
     result=db.session.execute(sql, {"username":username})
-    print("haettu username ja saatu:", result.fetchone())
     return result.fetchone()
